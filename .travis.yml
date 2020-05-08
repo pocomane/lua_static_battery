@@ -1,0 +1,28 @@
+language: c
+
+matrix:
+  include:
+    - os: linux
+      env: TARGET="linux"
+    - os: linux
+      env: TARGET="windows"
+    - os: osx
+      env: TARGET="mac"
+
+deploy:
+  provider: releases
+  api_key: $GITHUB_API_KEY
+  file_glob: true
+  file: "build/deploy/*"
+  skip_cleanup: true
+
+branches:
+  only:
+    - master
+
+install:
+  - if [ "$TRAVIS_OS_NAME" != "osx" ]; then sudo apt-get install curl; fi
+
+script:
+  - sh build.sh
+
