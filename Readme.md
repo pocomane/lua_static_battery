@@ -2,8 +2,9 @@
 Lua static battery
 ==================
 
-This is a script to build a static version of lua, using gcc and the musl C library.
-Some usefull libraries are included too.
+This is a script to build a static version of lua, using gcc and the musl C
+library.  The toolchain are downloaded from [musl.cc](http://musl.cc). Some
+usefull libraries are included too.
 
 The script can build linux, windows and mac binaries. Windows binaries are
 built through cross-building from linux. The mac binaries are built with a
