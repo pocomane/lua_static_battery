@@ -29,8 +29,8 @@ This repository is configured to automatically publish release files, thanks to
 and tag informations must be pushed together, e.g.:
 
 ```
-commit -a -m 'Changes summary'
-commit tag 0.1_wip
-commit push origin : 0.1_wip
+git commit -a -m 'Changes summary'
+git commit tag 0.1_wip
+git commit push origin : 0.1_wip
 ```
 
