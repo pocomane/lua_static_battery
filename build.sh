@@ -100,7 +100,7 @@ tar -xzf lua-5.3.5.tar.gz ||die
 git clone https://github.com/keplerproject/luafilesystem ||die
 git clone https://github.com/diegonehab/luasocket ||die
 git clone https://github.com/pocomane/luachild
-git clone https://github.com/askyrme/luaproc
+git clone https://github.com/pocomane/luaproc-extended
 
 cd lua-5.3.5 ||die
 make CC="$CC" CFLAGS="$CFLAGS $CFLAGS_LUA" LDFLAGS="$LDFLAGS $LDFLAGS_LUA" $TARGET_LUA ||die
@@ -128,12 +128,12 @@ $CC $CFLAGS $CFLAGS_LUACHILD -c luachild_lua_5_3.c -o luachild_lua_5_3.o ||die
 $CC $CFLAGS $CFLAGS_LUACHILD $EXTRA_TARGET_LUACHILD ||die
 cd .. ||die
 
-cd luaproc ||die
+cd luaproc-extended ||die
 make CC="$CC" CFLAGS="$CFLAGS $CFLAGS_LUAPROC" src/lpsched.o src/luaproc.o ||die
 cd .. ||die
 
-$CC $CFLAGS $CFLAGS_PRELOAD -DLUA_MAIN_FILE='"lua-5.3.5/src/lua.c"' -I . -I lua-5.3.5/src -I luafilesystem/src -I luasocket/src -I luachild -I luaproc/src -c ../preload.c -o ./preload.o ||die
-$CC -o lua.exe ./preload.o lua-5.3.5/src/*.o luafilesystem/src/*.o luasocket/src/*.o luachild/*.o luaproc/src/*.o $LDFLAGS $LDFLAGS_PRELOAD ||die
+$CC $CFLAGS $CFLAGS_PRELOAD -DLUA_MAIN_FILE='"lua-5.3.5/src/lua.c"' -I . -I lua-5.3.5/src -I luafilesystem/src -I luasocket/src -I luachild -I luaproc-extended/src -c ../preload.c -o ./preload.o ||die
+$CC -o lua.exe ./preload.o lua-5.3.5/src/*.o luafilesystem/src/*.o luasocket/src/*.o luachild/*.o luaproc-extended/src/*.o $LDFLAGS $LDFLAGS_PRELOAD ||die
 $STRIP lua.exe
 
 mkdir -p deploy
