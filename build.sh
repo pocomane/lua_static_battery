@@ -89,19 +89,26 @@ fi
 mkdir -p build ||die
 cd build ||die
 
+DWN_LUA="http://www.lua.org/ftp/lua-5.3.5.tar.gz"
+DWN_LFS="https://github.com/keplerproject/luafilesystem"
+DWN_LSOCKET="https://github.com/diegonehab/luasocket"
+DWN_LCHILD="https://github.com/pocomane/luachild"
+DWN_LPROC="https://github.com/pocomane/luaproc-extended"
+DWN_GLUA="https://github.com/pocomane/glua"
+
 if [ "$DOWNLOAD_GCC_TOOLCHAIN" != "" ]; then
   echo "downloading $DOWNLOAD_GCC_TOOLCHAIN"
   curl "$DOWNLOAD_GCC_TOOLCHAIN" --output cc_toolchain.tar.gz ||diw
   tar -xzf cc_toolchain.tar.gz ||die
 fi
 echo "downloading lua"
-curl http://www.lua.org/ftp/lua-5.3.5.tar.gz --output lua-5.3.5.tar.gz ||die
-tar -xzf lua-5.3.5.tar.gz ||die
-git clone https://github.com/keplerproject/luafilesystem ||die
-git clone https://github.com/diegonehab/luasocket ||die
-git clone https://github.com/pocomane/luachild ||die
-git clone https://github.com/pocomane/luaproc-extended ||die
-git clone https://github.com/pocomane/glua ||die
+curl "DWN_LUA" --output lua.tar.gz ||die
+tar -xzf lua.tar.gz ||die
+git clone "$DWN_LFS" ||die
+git clone "$DWN_LSOCKET" ||die
+git clone "$DWN_LCHILD" ||die
+git clone "$DWN_LPROC" ||die
+git clone "$DWN_GLUA" ||die
 
 cd lua-5.3.5 ||die
 make CC="$CC" CFLAGS="$CFLAGS $CFLAGS_LUA" LDFLAGS="$LDFLAGS $LDFLAGS_LUA" $TARGET_LUA ||die
@@ -148,8 +155,24 @@ $STRIP lua.exe ||die
 $CC -o lua_merge.exe ./preload.o lua-5.3.5/src/*.o luafilesystem/src/*.o luasocket/src/*.o luachild/*.o luaproc-extended/src/*.o glua/*.o $LDFLAGS $LDFLAGS_PRELOAD ||die
 $STRIP lua_merge.exe ||die
 
+cp ../Readme.deploy.md ./wip ||die
+echo -n "\n" >> ./wip ||die
+echo -n "\nVersion report" >> ./wip ||die
+echo -n "\n###############" >> ./wip ||die
+echo -n "\n" >> ./wip ||die
+echo -n "\nlua static battery version $(cd ..; git describe --tags >> ./wip)" >> ./wip ||die
+echo -n "\nlua static battery link http://github.com/pocomane/lua_static_version $(cd ..; git rev-parse HEAD)" >> ./wip ||die
+echo -n "\ntoolchain version $DOWNLOAD_GCC_TOOLCHAIN" >> ./wip ||die
+echo -n "\nlua version 5.3.5 $DWN_LUA" >> ./wip ||die
+echo -n "\nluafilesystem version $DWN_LFS $(cd luafilesystem && git rev-parse HEAD)" >> ./wip ||die
+echo -n "\nluasocket version $DWN_LSOCKET $(cd luasocket && git rev-parse HEAD)" >> ./wip ||die
+echo -n "\nluachild version $DWN_LCHILD $(cd luachild && git rev-parse HEAD)" >> ./wip ||die
+echo -n "\nluaproc version $DWN_LPROC $(cd luaproc-extended && git rev-parse HEAD)" >> ./wip ||die
+echo -n "\nglua version $DWN_GLUA $(cd glua && git rev-parse HEAD)" >> ./wip ||die
+echo >> ./wip ||die
+cp ./wip ./Readme.md ||die
+
 mkdir -p deploy
-cp ../Readme.deploy.md ./Readme.md
 if [ "$TARGET" = "linux" ]; then
   tar -zcf deploy/lua_static_battery_linux.tar.gz Readme.md lua.exe lua_merge.exe ||die
 elif [ "$TARGET" = "windows" ]; then
