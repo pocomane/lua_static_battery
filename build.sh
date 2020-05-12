@@ -102,7 +102,7 @@ if [ "$DOWNLOAD_GCC_TOOLCHAIN" != "" ]; then
   tar -xzf cc_toolchain.tar.gz ||die
 fi
 echo "downloading lua"
-curl "DWN_LUA" --output lua.tar.gz ||die
+curl "$DWN_LUA" --output lua.tar.gz ||die
 tar -xzf lua.tar.gz ||die
 git clone "$DWN_LFS" ||die
 git clone "$DWN_LSOCKET" ||die
