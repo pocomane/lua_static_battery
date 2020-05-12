@@ -160,7 +160,7 @@ echo -n "\n" >> ./wip ||die
 echo -n "\nVersion report" >> ./wip ||die
 echo -n "\n###############" >> ./wip ||die
 echo -n "\n" >> ./wip ||die
-echo -n "\nlua static battery version $(cd ..; git describe --tags >> ./wip)" >> ./wip ||die
+echo -n "\nlua static battery version $(cd ..; git describe --tags)" >> ./wip ||die
 echo -n "\nlua static battery link http://github.com/pocomane/lua_static_version $(cd ..; git rev-parse HEAD)" >> ./wip ||die
 echo -n "\ntoolchain version $DOWNLOAD_GCC_TOOLCHAIN" >> ./wip ||die
 echo -n "\nlua version 5.3.5 $DWN_LUA" >> ./wip ||die
