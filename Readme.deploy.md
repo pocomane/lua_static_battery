@@ -64,4 +64,3 @@ a fake big script (e.g. 32k of white spaces), that you can change later.
 If you want to avoid to store the script in human-readable/writable form, you
 can preliminarly compile it to lua bytecode with the standard lua facility
 (i.e. `load` + `srting.dump`).
-
