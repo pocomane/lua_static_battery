@@ -26,7 +26,7 @@ static int loader_lua_socket(lua_State *L){
   return 1;
 }
 
-static void preload_lua_library(lua_State* L){
+int preload_all(lua_State* L){
   luaL_openlibs(L);  /* open standard libraries */
 
   luaL_getsubtable(L, LUA_REGISTRYINDEX, LUA_PRELOAD_TABLE);
@@ -43,8 +43,6 @@ static void preload_lua_library(lua_State* L){
   lua_pushcfunction(L, luaopen_luaproc); lua_setfield(L, -2, "luaproc");
 
   lua_pop(L, 1);
+  return 0;
 }
-
-#define luaL_openlibs(L) preload_lua_library(L)
-#include LUA_MAIN_FILE
 

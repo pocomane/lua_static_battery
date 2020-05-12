@@ -99,8 +99,9 @@ curl http://www.lua.org/ftp/lua-5.3.5.tar.gz --output lua-5.3.5.tar.gz ||die
 tar -xzf lua-5.3.5.tar.gz ||die
 git clone https://github.com/keplerproject/luafilesystem ||die
 git clone https://github.com/diegonehab/luasocket ||die
-git clone https://github.com/pocomane/luachild
-git clone https://github.com/pocomane/luaproc-extended
+git clone https://github.com/pocomane/luachild ||die
+git clone https://github.com/pocomane/luaproc-extended ||die
+git clone https://github.com/pocomane/glua ||die
 
 cd lua-5.3.5 ||die
 make CC="$CC" CFLAGS="$CFLAGS $CFLAGS_LUA" LDFLAGS="$LDFLAGS $LDFLAGS_LUA" $TARGET_LUA ||die
@@ -132,17 +133,29 @@ cd luaproc-extended ||die
 make CC="$CC" CFLAGS="$CFLAGS $CFLAGS_LUAPROC" src/lpsched.o src/luaproc.o ||die
 cd .. ||die
 
+cd glua/ ||die
+mv preload.c preload.c.bck
+$CC $CFLAGS $CFLAGS_GLUA -DENABLE_STANDARD_LUA_CLI='"../lua-5.3.5/src/lua.c"' -DBINJECT_ARRAY_SIZE=32768 -DUSE_WHEREAMI -I . -I ../lua-5.3.5/src/ -c *.c ||die
+mv preload.c.bck preload.c ||die
+cd .. ||die
+
 $CC $CFLAGS $CFLAGS_PRELOAD -DLUA_MAIN_FILE='"lua-5.3.5/src/lua.c"' -I . -I lua-5.3.5/src -I luafilesystem/src -I luasocket/src -I luachild -I luaproc-extended/src -c ../preload.c -o ./preload.o ||die
-$CC -o lua.exe ./preload.o lua-5.3.5/src/*.o luafilesystem/src/*.o luasocket/src/*.o luachild/*.o luaproc-extended/src/*.o $LDFLAGS $LDFLAGS_PRELOAD ||die
-$STRIP lua.exe
+$CC $CFLAGS $CFLAGS_PRELOAD -DLUA_MAIN_FILE='"lua-5.3.5/src/lua.c"' -I . -I lua-5.3.5/src -I luafilesystem/src -I luasocket/src -I luachild -I luaproc-extended/src -c ../lua_patch.c -o ./lua_patch.o ||die
+
+$CC -o lua.exe ./lua_patch.o ./preload.o lua-5.3.5/src/*.o luafilesystem/src/*.o luasocket/src/*.o luachild/*.o luaproc-extended/src/*.o $LDFLAGS $LDFLAGS_PRELOAD ||die
+$STRIP lua.exe ||die
+
+$CC -o lua_merge.exe ./preload.o lua-5.3.5/src/*.o luafilesystem/src/*.o luasocket/src/*.o luachild/*.o luaproc-extended/src/*.o glua/*.o $LDFLAGS $LDFLAGS_PRELOAD ||die
+$STRIP lua_merge.exe ||die
 
 mkdir -p deploy
+cp ../Readme.deploy.md ./Readme.md
 if [ "$TARGET" = "linux" ]; then
-  tar -zcf deploy/lua_static_battery_linux.tar.gz lua.exe ||die
+  tar -zcf deploy/lua_static_battery_linux.tar.gz Readme.md lua.exe lua_merge.exe ||die
 elif [ "$TARGET" = "windows" ]; then
-  zip -r deploy/lua_static_battery_windows.zip lua.exe ||die
+  zip -r deploy/lua_static_battery_windows.zip Readme.md lua.exe lua_merge.exe ||die
 elif [ "$TARGET" = "mac" ]; then
-  tar -zcf deploy/lua_static_battery_mac.tar.gz lua.exe ||die
+  tar -zcf deploy/lua_static_battery_mac.tar.gz Readme.md lua.exe lua_merge.exe ||die
 fi
 ls -lha deploy
 
