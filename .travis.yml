@@ -8,6 +8,8 @@ matrix:
       env: TARGET="windows"
     - os: osx
       env: TARGET="mac"
+    - os: linux
+      env: TARGET="arm_linux"
 
 deploy:
   provider: releases

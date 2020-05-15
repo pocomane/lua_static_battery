@@ -81,6 +81,13 @@ elif [ "$TARGET" = "mac" ]; then
 
   export TARGET_LUA="macosx"
 
+elif [ "$TARGET" = "arm_linux" ]; then
+  echo "building for arm_linux"
+
+  export DOWNLOAD_GCC_TOOLCHAIN="http://musl.cc/arm-linux-musleabihf-cross.tgz"
+  export CC="$PWD/build/arm-linux-musleabihf-cross/bin/arm-linux-musleabihf-gcc"
+  export STRIP="$PWD/build/arm-linux-musleabihf-cross/bin/arm-linux-musleabihf-strip"
+
 else
   echo "unknown target '$TARGET'"
   exit -1
@@ -173,12 +180,10 @@ echo >> ./wip ||die
 cp ./wip ./Readme.md ||die
 
 mkdir -p deploy
-if [ "$TARGET" = "linux" ]; then
-  tar -zcf deploy/lua_static_battery_linux.tar.gz Readme.md lua.exe lua_merge.exe ||die
-elif [ "$TARGET" = "windows" ]; then
+if [ "$TARGET" = "windows" ]; then
   zip -r deploy/lua_static_battery_windows.zip Readme.md lua.exe lua_merge.exe ||die
-elif [ "$TARGET" = "mac" ]; then
-  tar -zcf deploy/lua_static_battery_mac.tar.gz Readme.md lua.exe lua_merge.exe ||die
+else
+  tar -zcf "deploy/lua_static_battery_$TARGET.tar.gz" Readme.md lua.exe lua_merge.exe ||die
 fi
 ls -lha deploy
 

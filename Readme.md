@@ -6,9 +6,10 @@ This is a script to build a static version of lua, using gcc and the musl C
 library.  The toolchain are downloaded from [musl.cc](http://musl.cc). Some
 usefull libraries are included too.
 
-The script can build linux, windows and mac binaries. Windows binaries are
-built through cross-building from linux. The mac binaries are built with a
-default LLVM toolchain, without musl.
+The script can build linux, windows and mac binaries. Linux binaries are built
+for both x86 (natively) and arm with hard float (through cross-compile).
+Windows binaries are built through cross-compile from linux. The mac binaries
+are built with a default LLVM toolchain, without musl.
 
 Library list and documentation
 ==============================
