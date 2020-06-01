@@ -21,6 +21,7 @@ Here a link to the documentation of the included software:
 - [Lua Socket](http://w3.impa.br/~diego/software/luasocket/reference.html), it is enabled with `local socket = require "socket"`
 - [Lua Child](https://github.com/pocomane/luachild), it is enabled with `local child = require "luachild"`
 - [LuaProc](https://github.com/pocomane/luaproc-extended), it is enabled with `local proc = require "luaproc"`
+- [Glua](https://github.com/pocomane/glua), it is a lua+script embedding utility
 
 Automatic Release
 =================
