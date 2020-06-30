@@ -7,13 +7,15 @@ die(){
   exit -1
 }
 
+export LUAVER="5.4.0"
+
 export DOWNLOAD_GCC_TOOLCHAIN="http://musl.cc/i686-linux-musl-native.tgz"
 
 # this should be the same of CC=" musl-gcc "
 # export CC=" cc -specs /usr/share/dpkg/no-pie-compile.specs -specs /usr/share/dpkg/no-pie-link.specs -specs /usr/lib/x86_64-linux-musl/musl-gcc.specs "
 
 export CC=" gcc "
-export CFLAGS=" -std=gnu99 -O2 -I ../lua-5.3.5/src -I ../../lua-5.3.5/src "
+export CFLAGS=" -std=gnu99 -O2 -I ../lua-$LUAVER/src -I ../../lua-$LUAVER/src "
 export LDFLAGS=" -static -ldl "
 export STRIP=" strip "
 
@@ -96,13 +98,14 @@ fi
 mkdir -p build ||die
 cd build ||die
 
-DWN_LUA="http://www.lua.org/ftp/lua-5.3.5.tar.gz"
+DWN_LUA="http://www.lua.org/ftp/lua-$LUAVER.tar.gz"
 DWN_LFS="https://github.com/keplerproject/luafilesystem"
 DWN_LSOCKET="https://github.com/diegonehab/luasocket"
 DWN_LCHILD="https://github.com/pocomane/luachild"
 DWN_LPROC="https://github.com/pocomane/luaproc-extended"
 DWN_GLUA="https://github.com/pocomane/glua"
 
+echo "DOWNLOADING PACKAGES"
 if [ "$DOWNLOAD_GCC_TOOLCHAIN" != "" ]; then
   echo "downloading $DOWNLOAD_GCC_TOOLCHAIN"
   curl "$DOWNLOAD_GCC_TOOLCHAIN" --output cc_toolchain.tar.gz ||diw
@@ -117,7 +120,7 @@ git clone "$DWN_LCHILD" ||die
 git clone "$DWN_LPROC" ||die
 git clone "$DWN_GLUA" ||die
 
-cd lua-5.3.5 ||die
+cd "lua-$LUAVER" ||die
 make CC="$CC" CFLAGS="$CFLAGS $CFLAGS_LUA" LDFLAGS="$LDFLAGS $LDFLAGS_LUA" $TARGET_LUA ||die
 rm src/lua.o src/luac.o ||die
 cd .. ||die
@@ -147,19 +150,22 @@ cd luaproc-extended ||die
 make CC="$CC" CFLAGS="$CFLAGS $CFLAGS_LUAPROC" src/lpsched.o src/luaproc.o ||die
 cd .. ||die
 
+
 cd glua/ ||die
 mv preload.c preload.c.bck
-$CC $CFLAGS $CFLAGS_GLUA -DENABLE_STANDARD_LUA_CLI='"../lua-5.3.5/src/lua.c"' -DBINJECT_ARRAY_SIZE=32768 -DUSE_WHEREAMI -I . -I ../lua-5.3.5/src/ -c *.c ||die
+export QUOTED_OPTION="-DENABLE_STANDARD_LUA_CLI=\"../lua-$LUAVER/src/lua.c\""
+$CC $CFLAGS $CFLAGS_GLUA $QUOTED_OPTION -DBINJECT_ARRAY_SIZE=32768 -DUSE_WHEREAMI -I . -I "../lua-$LUAVER/src/" -c *.c ||die
 mv preload.c.bck preload.c ||die
 cd .. ||die
 
-$CC $CFLAGS $CFLAGS_PRELOAD -DLUA_MAIN_FILE='"lua-5.3.5/src/lua.c"' -I . -I lua-5.3.5/src -I luafilesystem/src -I luasocket/src -I luachild -I luaproc-extended/src -c ../preload.c -o ./preload.o ||die
-$CC $CFLAGS $CFLAGS_PRELOAD -DLUA_MAIN_FILE='"lua-5.3.5/src/lua.c"' -I . -I lua-5.3.5/src -I luafilesystem/src -I luasocket/src -I luachild -I luaproc-extended/src -c ../lua_patch.c -o ./lua_patch.o ||die
+export QUOTED_OPTION="-DLUA_MAIN_FILE=\"lua-$LUAVER/src/lua.c\""
+$CC $CFLAGS $CFLAGS_PRELOAD $QUOTED_OPTION -I . -I "lua-$LUAVER/src" -I luafilesystem/src -I luasocket/src -I luachild -I luaproc-extended/src -c ../preload.c -o ./preload.o ||die
+$CC $CFLAGS $CFLAGS_PRELOAD $QUOTED_OPTION -I . -I "lua-$LUAVER/src" -I luafilesystem/src -I luasocket/src -I luachild -I luaproc-extended/src -c ../lua_patch.c -o ./lua_patch.o ||die
 
-$CC -o lua.exe ./lua_patch.o ./preload.o lua-5.3.5/src/*.o luafilesystem/src/*.o luasocket/src/*.o luachild/*.o luaproc-extended/src/*.o $LDFLAGS $LDFLAGS_PRELOAD ||die
+$CC -o lua.exe ./lua_patch.o ./preload.o "lua-$LUAVER"/src/*.o luafilesystem/src/*.o luasocket/src/*.o luachild/*.o luaproc-extended/src/*.o $LDFLAGS $LDFLAGS_PRELOAD ||die
 $STRIP lua.exe ||die
 
-$CC -o lua_merge.exe ./preload.o lua-5.3.5/src/*.o luafilesystem/src/*.o luasocket/src/*.o luachild/*.o luaproc-extended/src/*.o glua/*.o $LDFLAGS $LDFLAGS_PRELOAD ||die
+$CC -o lua_merge.exe ./preload.o "lua-$LUAVER"/src/*.o luafilesystem/src/*.o luasocket/src/*.o luachild/*.o luaproc-extended/src/*.o glua/*.o $LDFLAGS $LDFLAGS_PRELOAD ||die
 $STRIP lua_merge.exe ||die
 
 cp ../Readme.deploy.md ./wip ||die
@@ -170,7 +176,7 @@ echo -n "\n" >> ./wip ||die
 echo -n "\nlua static battery version $(cd ..; git describe --tags)" >> ./wip ||die
 echo -n "\nlua static battery link http://github.com/pocomane/lua_static_version $(cd ..; git rev-parse HEAD)" >> ./wip ||die
 echo -n "\ntoolchain version $DOWNLOAD_GCC_TOOLCHAIN" >> ./wip ||die
-echo -n "\nlua version 5.3.5 $DWN_LUA" >> ./wip ||die
+echo -n "\nlua version $LUAVER $DWN_LUA" >> ./wip ||die
 echo -n "\nluafilesystem version $DWN_LFS $(cd luafilesystem && git rev-parse HEAD)" >> ./wip ||die
 echo -n "\nluasocket version $DWN_LSOCKET $(cd luasocket && git rev-parse HEAD)" >> ./wip ||die
 echo -n "\nluachild version $DWN_LCHILD $(cd luachild && git rev-parse HEAD)" >> ./wip ||die
