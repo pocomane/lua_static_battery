@@ -32,7 +32,7 @@ and tag informations must be pushed together, e.g.:
 
 ```
 git commit -a -m 'Changes summary'
-git commit tag 0.1_wip
-git commit push origin : 0.1_wip
+git tag 0.1_wip
+git push origin : 0.1_wip
 ```
 
