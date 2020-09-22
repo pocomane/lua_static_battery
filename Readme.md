@@ -23,16 +23,3 @@ Here a link to the documentation of the included software:
 - [LuaProc](https://github.com/pocomane/luaproc-extended), it is enabled with `local proc = require "luaproc"`
 - [Glua](https://github.com/pocomane/glua), it is a lua+script embedding utility
 
-Automatic Release
-=================
-
-This repository is configured to automatically publish release files, thanks to
-[Travis-CI](https://travis-ci.org).  To give the right tag to a release, commit
-and tag informations must be pushed together, e.g.:
-
-```
-git commit -a -m 'Changes summary'
-git tag 0.1_wip
-git push origin : 0.1_wip
-```
-
