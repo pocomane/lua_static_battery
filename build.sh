@@ -7,7 +7,7 @@ die(){
   exit -1
 }
 
-export LUAVER="5.4.0"
+export LUAVER="5.4.1"
 
 export DOWNLOAD_GCC_TOOLCHAIN="http://musl.cc/i686-linux-musl-native.tgz"
 
