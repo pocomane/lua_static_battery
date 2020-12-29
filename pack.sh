@@ -20,12 +20,12 @@ die(){
   exit 127
 }
 
-TREE_PATH="$(readlink -f "$TREE_PATH")"
-
 # All the function use the following suffix (from "Updater Script"): us_
 
 us_init() {
-  echo ""
+  TREE_PATH="$(readlink -f "$TREE_PATH")"
+  SCRIPT_DIR="$TREE_PATH/$SCRIPT_SUB"
+
 }
 
 us_is_default_argument() {
@@ -43,18 +43,6 @@ us_set_package_info() {
   PACKAGE_TYPE="$4"
   PACKAGE_SIMPLENAME="$5"
 
-  # Fallback to UPDATER package (the one containing this file) when the first two
-  # arguments are empty
-  if us_is_default_argument "$PACKAGE_OWNER"; then
-    PACKAGE_OWNER="$PACKAGE_UPDATER_OWNER"
-    if us_is_default_argument "$PACKAGE_TYPE"; then
-      PACKAGE_TYPE="$PACKAGE_UPDATER_TYPE"
-    fi
-  fi
-  if us_is_default_argument "$PACKAGE_NAME"; then
-    PACKAGE_NAME="$PACKAGE_UPDATER_NAME"
-  fi
-
   if us_is_default_argument "$PACKAGE_PATTERN"; then
     PACKAGE_PATTERN="$PACKAGE_NAME"
   fi
@@ -66,8 +54,6 @@ us_set_package_info() {
   if us_is_default_argument "$PACKAGE_SIMPLENAME"; then
     PACKAGE_SIMPLENAME="$PACKAGE_NAME"
   fi
-
-  SCRIPT_DIR="$TREE_PATH/$SCRIPT_SUB"
 
   PACKAGE_REPO="$PACKAGE_OWNER/$PACKAGE_NAME"
   PACKAGE_WORKING_DIR="$TREE_PATH/$MISC_SUB/$PACKAGE_SIMPLENAME"
@@ -277,18 +263,6 @@ us_set_updater_info(){
   us_do_for_updater infoset
 }
 
-us_info(){
-  echo "Usage Summary."
-  echo "To download and update the software:"
-  echo "  $0 update"
-  echo "To remove the software:"
-  echo "  $0 remove"
-  echo "To configure the software:"
-  echo "  $0 config"
-  echo "To view a simple Updater Shortcut script:"
-  echo "  $0 show_shortcut"
-}
-
 us_is_updater_installed() {
   us_set_updater_info
   if [[ -x "$UPDATER_SCRIPT" ]]; then
@@ -320,6 +294,28 @@ us_update() {
 
   us_do_for_updater install
   us_run_installed_updater internal_installer_for_update
+}
+
+us_print_info(){
+  us_set_updater_info
+  echo "TREE_PATH: $TREE_PATH"
+  echo "SCRIPT_DIR: $SCRIPT_DIR"
+  echo "UPDATER SIMPLE_NAME: $PACKAGE_SIMPLENAME"
+  echo "UPDATER WORKING_DIR: $PACKAGE_WORKING_DIR"
+  echo "UPDATER_SCRIPT: $UPDATER_SCRIPT"
+  echo "UPDATER ACTION DIR: $PACKAGE_ACTION"
+}
+
+us_info(){
+  echo "Usage Summary."
+  echo "To download and update the software:"
+  echo "  $0 update"
+  echo "To remove the software:"
+  echo "  $0 remove"
+  echo "To configure the software:"
+  echo "  $0 config"
+  echo "To view a simple Updater Shortcut script:"
+  echo "  $0 show_shortcut"
 }
 
 us_main_dispatch() {
@@ -354,7 +350,12 @@ us_main_dispatch() {
   fi
 }
 
-us_init
-us_main_dispatch $@
-us_finish
+main() {
+  us_init
+  us_print_info
+  us_main_dispatch $@
+  us_finish
+}
+
+main $@
 
