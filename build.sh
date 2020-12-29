@@ -7,15 +7,16 @@ die(){
   exit -1
 }
 
-export LUAVER="5.4.0"
-
-export DOWNLOAD_GCC_TOOLCHAIN="http://musl.cc/i686-linux-musl-native.tgz"
+SCRDIR="$(readlink -f $(dirname "$0"))"
+cd "$SCRDIR"/..
+BUILDDIR="$(readlink -f .)"
+pwd
 
 # this should be the same of CC=" musl-gcc "
 # export CC=" cc -specs /usr/share/dpkg/no-pie-compile.specs -specs /usr/share/dpkg/no-pie-link.specs -specs /usr/lib/x86_64-linux-musl/musl-gcc.specs "
 
 export CC=" gcc "
-export CFLAGS=" -std=gnu99 -O2 -I ../lua-$LUAVER/src -I ../../lua-$LUAVER/src "
+export CFLAGS=" -std=gnu99 -O2 -I $BUILDDIR/lua/src "
 export LDFLAGS=" -static -ldl "
 export STRIP=" strip "
 
@@ -48,17 +49,15 @@ fi
 if   [ "$TARGET" = "linux" ]; then
   echo "building for linux"
 
-  export CC="$PWD/build/i686-linux-musl-native/bin/i686-linux-musl-gcc"
-  export STRIP="$PWD/build/i686-linux-musl-native/bin/strip"
+  export CC="$PWD/muslcc/bin/i686-linux-musl-gcc"
+  export STRIP="$PWD/muslcc/bin/strip"
 
 elif [ "$TARGET" = "windows" ]; then
   echo "building for windows"
 
-  export DOWNLOAD_GCC_TOOLCHAIN="http://musl.cc/i686-w64-mingw32-cross.tgz"
-
-  export CC="$PWD/build/i686-w64-mingw32-cross/bin/i686-w64-mingw32-gcc"
+  export CC="$PWD/muslcc/bin/i686-w64-mingw32-gcc"
   export LDFLAGS=" -static "
-  export STRIP="$PWD/build/i686-w64-mingw32-cross/bin/i686-w64-mingw32-strip"
+  export STRIP="$PWD/muslcc/bin/i686-w64-mingw32-strip"
 
   export TARGET_LUA="mingw"
   export CFLAGS_LUA=""
@@ -77,7 +76,6 @@ elif [ "$TARGET" = "windows" ]; then
 elif [ "$TARGET" = "mac" ]; then
   echo "building for mac"
 
-  export DOWNLOAD_GCC_TOOLCHAIN=""
   export CC=" gcc "
   export LDFLAGS=" -ldl "
 
@@ -86,50 +84,22 @@ elif [ "$TARGET" = "mac" ]; then
 elif [ "$TARGET" = "arm_linux" ]; then
   echo "building for arm_linux"
 
-  export DOWNLOAD_GCC_TOOLCHAIN="http://musl.cc/arm-linux-musleabihf-cross.tgz"
-  export CC="$PWD/build/arm-linux-musleabihf-cross/bin/arm-linux-musleabihf-gcc"
-  export STRIP="$PWD/build/arm-linux-musleabihf-cross/bin/arm-linux-musleabihf-strip"
+  export CC="$PWD/muslcc/bin/arm-linux-musleabihf-gcc"
+  export STRIP="$PWD/muslcc/bin/arm-linux-musleabihf-strip"
 
 else
   echo "unknown target '$TARGET'"
   exit -1
 fi
 
-mkdir -p build ||die
-cd build ||die
-
-DWN_LUA="http://www.lua.org/ftp/lua-$LUAVER.tar.gz"
-DWN_LFS="https://github.com/keplerproject/luafilesystem"
-DWN_LSOCKET="https://github.com/diegonehab/luasocket"
-DWN_LCHILD="https://github.com/pocomane/luachild"
-DWN_LPROC="https://github.com/pocomane/luaproc-extended"
-DWN_GLUA="https://github.com/pocomane/glua"
-
-echo "DOWNLOADING PACKAGES"
-if [ "$DOWNLOAD_GCC_TOOLCHAIN" != "" ]; then
-  echo "downloading $DOWNLOAD_GCC_TOOLCHAIN"
-  curl "$DOWNLOAD_GCC_TOOLCHAIN" --output cc_toolchain.tar.gz ||diw
-  tar -xzf cc_toolchain.tar.gz ||die
-fi
-echo "downloading lua"
-curl "$DWN_LUA" --output lua.tar.gz ||die
-tar -xzf lua.tar.gz ||die
-git clone "$DWN_LFS" ||die
-git clone "$DWN_LSOCKET" ||die
-git clone "$DWN_LCHILD" ||die
-git clone "$DWN_LPROC" ||die
-git clone "$DWN_GLUA" ||die
-
-cd "lua-$LUAVER" ||die
+cd "$BUILDDIR"/lua ||die
 make CC="$CC" CFLAGS="$CFLAGS $CFLAGS_LUA" LDFLAGS="$LDFLAGS $LDFLAGS_LUA" $TARGET_LUA ||die
 rm src/lua.o src/luac.o ||die
-cd .. ||die
 
-cd luafilesystem ||die
+cd "$BUILDDIR"/luafilesystem ||die
 make CC="$CC" CFLAGS="$CFLAGS $CFLAGS_LUAFILESYSTEM" src/lfs.o ||die
-cd .. ||die
 
-cd luasocket ||die
+cd "$BUILDDIR"/luasocket ||die
 if [ "$EXTRA_TARGET_LUASOCKET" != "" ]; then
   cd src
   make CC="$CC" CFLAGS="$CFLAGS $CFLAGS_LUASOCKET" $EXTRA_TARGET_LUASOCKET ||die
@@ -138,50 +108,66 @@ fi
 make CC="$CC" CFLAGS="$CFLAGS $CFLAGS_LUASOCKET" $TARGET_LUASOCKET # TODO : check it succeeded
 echo "static " > ../socket_lua.c
 xxd -i src/socket.lua >> ../socket_lua.c
-cd .. ||die
 
-cd luachild ||die
+cd "$BUILDDIR"/luachild ||die
 $CC $CFLAGS $CFLAGS_LUACHILD -c luachild_common.c -o luachild_common.o ||die
 $CC $CFLAGS $CFLAGS_LUACHILD -c luachild_lua_5_3.c -o luachild_lua_5_3.o ||die
 $CC $CFLAGS $CFLAGS_LUACHILD $EXTRA_TARGET_LUACHILD ||die
-cd .. ||die
 
-cd luaproc-extended ||die
+cd "$BUILDDIR"/luaproc-extended ||die
 make CC="$CC" CFLAGS="$CFLAGS $CFLAGS_LUAPROC" src/lpsched.o src/luaproc.o ||die
 cd .. ||die
 
 
-cd glua/ ||die
+cd "$BUILDDIR"/glua ||die
 mv preload.c preload.c.bck
-export QUOTED_OPTION="-DENABLE_STANDARD_LUA_CLI=\"../lua-$LUAVER/src/lua.c\""
+export QUOTED_OPTION="-DENABLE_STANDARD_LUA_CLI=\"../lua/src/lua.c\""
 $CC $CFLAGS $CFLAGS_GLUA $QUOTED_OPTION -DBINJECT_ARRAY_SIZE=32768 -DUSE_WHEREAMI -I . -I "../lua-$LUAVER/src/" -c *.c ||die
 mv preload.c.bck preload.c ||die
-cd .. ||die
 
-export QUOTED_OPTION="-DLUA_MAIN_FILE=\"lua-$LUAVER/src/lua.c\""
-$CC $CFLAGS $CFLAGS_PRELOAD $QUOTED_OPTION -I . -I "lua-$LUAVER/src" -I luafilesystem/src -I luasocket/src -I luachild -I luaproc-extended/src -c ../preload.c -o ./preload.o ||die
-$CC $CFLAGS $CFLAGS_PRELOAD $QUOTED_OPTION -I . -I "lua-$LUAVER/src" -I luafilesystem/src -I luasocket/src -I luachild -I luaproc-extended/src -c ../lua_patch.c -o ./lua_patch.o ||die
+cd "$BUILDDIR" ||die
 
-$CC -o lua.exe ./lua_patch.o ./preload.o "lua-$LUAVER"/src/*.o luafilesystem/src/*.o luasocket/src/*.o luachild/*.o luaproc-extended/src/*.o $LDFLAGS $LDFLAGS_PRELOAD ||die
+export QUOTED_OPTION="-DLUA_MAIN_FILE=\"lua/src/lua.c\""
+$CC $CFLAGS $CFLAGS_PRELOAD $QUOTED_OPTION -I . -I "lua/src" -I luafilesystem/src -I luasocket/src -I luachild -I luaproc-extended/src -c "$SCRDIR"/preload.c -o ./preload.o ||die
+$CC $CFLAGS $CFLAGS_PRELOAD $QUOTED_OPTION -I . -I "lua/src" -I luafilesystem/src -I luasocket/src -I luachild -I luaproc-extended/src -c "$SCRDIR"/lua_patch.c -o ./lua_patch.o ||die
+
+$CC -o lua.exe ./lua_patch.o ./preload.o lua/src/*.o luafilesystem/src/*.o luasocket/src/*.o luachild/*.o luaproc-extended/src/*.o $LDFLAGS $LDFLAGS_PRELOAD ||die
 $STRIP lua.exe ||die
 
-$CC -o lua_merge.exe ./preload.o "lua-$LUAVER"/src/*.o luafilesystem/src/*.o luasocket/src/*.o luachild/*.o luaproc-extended/src/*.o glua/*.o $LDFLAGS $LDFLAGS_PRELOAD ||die
+$CC -o lua_merge.exe ./preload.o lua/src/*.o luafilesystem/src/*.o luasocket/src/*.o luachild/*.o luaproc-extended/src/*.o glua/*.o $LDFLAGS $LDFLAGS_PRELOAD ||die
 $STRIP lua_merge.exe ||die
 
-cp ../Readme.deploy.md ./wip ||die
-echo -n "\n" >> ./wip ||die
-echo -n "\nVersion report" >> ./wip ||die
-echo -n "\n###############" >> ./wip ||die
-echo -n "\n" >> ./wip ||die
-echo -n "\nlua static battery version $(cd ..; git describe --tags)" >> ./wip ||die
-echo -n "\nlua static battery link http://github.com/pocomane/lua_static_version $(cd ..; git rev-parse HEAD)" >> ./wip ||die
-echo -n "\ntoolchain version $DOWNLOAD_GCC_TOOLCHAIN" >> ./wip ||die
-echo -n "\nlua version $LUAVER $DWN_LUA" >> ./wip ||die
-echo -n "\nluafilesystem version $DWN_LFS $(cd luafilesystem && git rev-parse HEAD)" >> ./wip ||die
-echo -n "\nluasocket version $DWN_LSOCKET $(cd luasocket && git rev-parse HEAD)" >> ./wip ||die
-echo -n "\nluachild version $DWN_LCHILD $(cd luachild && git rev-parse HEAD)" >> ./wip ||die
-echo -n "\nluaproc version $DWN_LPROC $(cd luaproc-extended && git rev-parse HEAD)" >> ./wip ||die
-echo -n "\nglua version $DWN_GLUA $(cd glua && git rev-parse HEAD)" >> ./wip ||die
+git_repo_ver(){
+  A="$(cd "$1" && git config --get remote.origin.url)"
+  B="$(cd "$1" && git rev-parse HEAD)"
+  echo "$A $B"
+}
+
+VER_STATICBAT="$(git_repo_ver pack)"
+A="$(cat lua/src/lua.h|grep -i lua_version_major|head -n 1|sed 's:.*"\(.*\)".*:\1:')"
+B="$(cat lua/src/lua.h|grep -i lua_version_minor|head -n 1|sed 's:.*"\(.*\)".*:\1:')"
+C="$(cat lua/src/lua.h|grep -i lua_version_release|head -n 1|sed 's:.*"\(.*\)".*:\1:')"
+VER_LUA="$A.$B.$C"
+VER_MUSLCC="$(ls muslcc/lib/gcc/i686-linux-musl |head -n 1)"
+VER_LFS="$(git_repo_ver luafilesystem)"
+VER_LSOCKET="$(git_repo_ver luasocket)"
+VER_LCHILD="$(git_repo_ver luachild)"
+VER_LPROC="$(git_repo_ver luaproc-extended)"
+VER_GLUA="$(git_repo_ver glua)"
+
+cp "$SCRDIR"/Readme.deploy.md ./wip ||die
+echo "" >> ./wip ||die
+echo "Version report" >> ./wip ||die
+echo "###############" >> ./wip ||die
+echo "" >> ./wip ||die
+echo "lua static battery version: $VER_STATICBAT" >> ./wip ||die
+echo "muslcc version: $VER_MUSLCC " >> ./wip ||die
+echo "lua version: $VER_LUA" >> ./wip ||die
+echo "luafilesystem version: $VER_LFS" >> ./wip ||die
+echo "luasocket version: $VER_LSOCKET" >> ./wip ||die
+echo "luachild version: $VER_LCHILD" >> ./wip ||die
+echo "luaproc version: $VER_LPROC" >> ./wip ||die
+echo "glua version: $VER_GLUA" >> ./wip ||die
 echo >> ./wip ||die
 cp ./wip ./Readme.md ||die
 

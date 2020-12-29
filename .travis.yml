@@ -35,5 +35,6 @@ install:
   - if [ "$TRAVIS_OS_NAME" != "osx" ]; then sudo apt-get install curl; fi
 
 script:
-  - sh build.sh
+  - sh pack.sh update
+  - sh .build/pack/build.sh
 
