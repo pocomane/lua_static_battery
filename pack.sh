@@ -278,11 +278,11 @@ us_run_installed_updater() {
   us_set_updater_info
 
   # For release
-  # chmod ugo+x "$UPDATER_SCRIPT"
-  # "$UPDATER_SCRIPT" $@ ||die
+  chmod ugo+x "$UPDATER_SCRIPT"
+  "$UPDATER_SCRIPT" $@ ||die
 
   # For development (of this script)
-  us_main_dispatch $@
+  # us_main_dispatch $@
 }
 
 us_update() {

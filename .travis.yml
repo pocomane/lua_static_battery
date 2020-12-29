@@ -36,5 +36,5 @@ install:
 
 script:
   - sh pack.sh update
-  - sh .build/pack/build.sh
+  - sh build/pack/build.sh
 
