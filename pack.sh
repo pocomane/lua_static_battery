@@ -25,7 +25,6 @@ die(){
 us_init() {
   TREE_PATH="$(readlink -f "$TREE_PATH")"
   SCRIPT_DIR="$TREE_PATH/$SCRIPT_SUB"
-
 }
 
 us_is_default_argument() {
@@ -197,15 +196,18 @@ us_config() {
 
   # Add action hooks in the Script dir
   for HOOK in $(ls "$PACKAGE_ACTION" 2>/dev/null) ; do
-    us_generate_wrapper "$PACKAGE_ACTION/$HOOK" > "$SCRIPT_DIR/${PACKAGE_SIMPLENAME}_$HOOK" ||die
+    OUTSCR="$SCRIPT_DIR/${PACKAGE_SIMPLENAME}_$HOOK"
+    us_generate_wrapper "$PACKAGE_ACTION/$HOOK" > "$OUTSCR" ||die
+    chmod ugo+x "$OUTSCR" ||die
   done
 
   # Special case for the updater
   if [ "$PACKAGE_SIMPLENAME" = "$UPDATER_NAME" ]; then
     # This is done with a wrapper for other packages, however the Updater is
     # an exception since the "Shortcut" MUST work also withou any installation)
-    echo "DEBUG [$SCRIPT_DIR] / [${PACKAGE_SIMPLENAME}_update.sh]"
+    OUTSCR="$SCRIPT_DIR/${PACKAGE_SIMPLENAME}_update.sh"
     us_show_shortcut > "$SCRIPT_DIR/${PACKAGE_SIMPLENAME}_update.sh" ||die
+    chmod ugo+x "$OUTSCR" ||die
   fi
 
   # TODO : other configs ? boot hooks ?
@@ -276,16 +278,17 @@ us_run_installed_updater() {
   us_set_updater_info
 
   # For release
-  chmod ugo+x "$UPDATER_SCRIPT"
-  "$UPDATER_SCRIPT" $@ ||die
+  # chmod ugo+x "$UPDATER_SCRIPT"
+  # "$UPDATER_SCRIPT" $@ ||die
 
-  # For development
-  # us_main_dispatch $@
+  # For development (of this script)
+  us_main_dispatch $@
 }
 
 us_update() {
   us_set_updater_info
   mkdir -p "$SCRIPT_DIR" ||die "can not create the script directory '$SCRIPT_DIR'"
+  pwd && ls -lha . "$SCRIPT_DIR" "$(dirname "$SCRIPT_DIR")" # DEBUG
 
   if us_is_updater_installed; then
     us_run_installed_updater remove
