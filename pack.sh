@@ -4,6 +4,7 @@ TREE_PATH="./build"
 PACKAGE_UPDATER_OWNER="github.com/pocomane"
 PACKAGE_UPDATER_NAME="lua_static_battery"
 PACKAGE_UPDATER_TYPE="git.url"
+UPDATER_BASE_NAME="pack"
 SCRIPT_SUB="Scripts"
 MISC_SUB="."
 HOOK_SUB="hook"
@@ -74,8 +75,8 @@ us_set_package_info() {
 
   PACKAGE_REPO="$PACKAGE_OWNER/$PACKAGE_NAME"
   PACKAGE_WORKING_DIR="$TREE_PATH/$MISC_SUB/$PACKAGE_SIMPLENAME"
-  PACKAGE_DEFAULT_SCRIPT_NAME="$PACKAGE_NAME.sh"
-  PACKAGE_DEFAULT_SCRIPT="$PACKAGE_WORKING_DIR/$PACKAGE_DEFAULT_SCRIPT_NAME"
+  UPDATER_SCRIPT_NAME="$UPDATER_BASE_NAME.sh"
+  UPDATER_SCRIPT="$PACKAGE_WORKING_DIR/$UPDATER_SCRIPT_NAME"
   PACKAGE_ACTION="$PACKAGE_WORKING_DIR/$HOOK_SUB/$ACTION_HOOK"
   PACKAGE_BOOT="$PACKAGE_WORKING_DIR/$HOOK_SUB/$BOOT_HOOK"
 }
@@ -180,7 +181,7 @@ cat << EOF
   # vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
   # You can simply run the following command instead of running this file
   #
-  curl -L -k "$PACKAGE_REPO_CONTENT/master/$PACKAGE_DEFAULT_SCRIPT_NAME" | bash -s update
+  curl -L -k "$PACKAGE_REPO_CONTENT/master/$UPDATER_SCRIPT_NAME" | bash -s update
   #
   # ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -300,7 +301,7 @@ us_info(){
 
 us_is_updater_installed() {
   us_set_package_info
-  if [[ -x "$PACKAGE_DEFAULT_SCRIPT" ]]; then
+  if [[ -x "$UPDATER_SCRIPT" ]]; then
     return 0 # true when checked in a "if"
   fi
   return 1 # false when checked in a "if"
@@ -310,7 +311,7 @@ us_run_installed_updater() {
   us_set_package_info
 
   # For release
-  "$PACKAGE_DEFAULT_SCRIPT" $@ ||die
+  "$UPDATER_SCRIPT" $@ ||die
 
   # For development
   # us_main_dispatch $@
