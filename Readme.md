@@ -44,6 +44,9 @@ curl -L -k "https://raw.githubusercontent.com/pocomane/pack/master/pack.sh" | ba
 To select the target architecture you can set the `TARGET` environment variable
 to `linux`, `arm_linux`, `windows` or `mac`.
 
+To change the download/build directory, you can set the `UPDATER_TARGET`
+environment variable.
+
 Build environment
 =================
 

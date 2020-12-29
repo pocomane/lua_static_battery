@@ -23,6 +23,9 @@ die(){
 # All the function use the following suffix (from "Updater Script"): us_
 
 us_init() {
+  if [ "$UPDATER_TARGET" != "" ]; then
+    TREE_PATH="$UPDATER_TARGET"
+  fi
   TREE_PATH="$(readlink -f "$TREE_PATH")"
   SCRIPT_DIR="$TREE_PATH/$SCRIPT_SUB"
 }
@@ -279,6 +282,7 @@ us_run_installed_updater() {
 
   # For release
   chmod ugo+x "$UPDATER_SCRIPT"
+  export UPDATER_TARGET="$TREE_PATH"
   "$UPDATER_SCRIPT" $@ ||die
 
   # For development (of this script)
@@ -288,7 +292,6 @@ us_run_installed_updater() {
 us_update() {
   us_set_updater_info
   mkdir -p "$SCRIPT_DIR" ||die "can not create the script directory '$SCRIPT_DIR'"
-  pwd && ls -lha . "$SCRIPT_DIR" "$(dirname "$SCRIPT_DIR")" # DEBUG
 
   if us_is_updater_installed; then
     us_run_installed_updater remove
