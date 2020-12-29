@@ -26,7 +26,7 @@ us_init() {
   if [ "$UPDATER_TARGET" != "" ]; then
     TREE_PATH="$UPDATER_TARGET"
   fi
-  TREE_PATH="$(readlink -f "$TREE_PATH")"
+  TREE_PATH="$(realpath "$TREE_PATH")"
   SCRIPT_DIR="$TREE_PATH/$SCRIPT_SUB"
 }
 
