@@ -204,6 +204,7 @@ us_config() {
   if [ "$PACKAGE_SIMPLENAME" = "$UPDATER_NAME" ]; then
     # This is done with a wrapper for other packages, however the Updater is
     # an exception since the "Shortcut" MUST work also withou any installation)
+    echo "DEBUG [$SCRIPT_DIR] / [${PACKAGE_SIMPLENAME}_update.sh]"
     us_show_shortcut > "$SCRIPT_DIR/${PACKAGE_SIMPLENAME}_update.sh" ||die
   fi
 
