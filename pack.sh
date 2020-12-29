@@ -1,15 +1,11 @@
 #/usr/bin/env bash
 
 TREE_PATH="./build"
-PACKAGE_UPDATER_OWNER="github.com/pocomane"
-PACKAGE_UPDATER_NAME="lua_static_battery"
-PACKAGE_UPDATER_TYPE="git.url"
-UPDATER_BASE_NAME="pack"
 SCRIPT_SUB="Scripts"
 MISC_SUB="."
 HOOK_SUB="hook"
 ACTION_HOOK="action"
-BOOT_HOOK="boot"
+UPDATER_NAME="pack"
 
 # ---------------------------------------------------------------------------------
 
@@ -75,10 +71,9 @@ us_set_package_info() {
 
   PACKAGE_REPO="$PACKAGE_OWNER/$PACKAGE_NAME"
   PACKAGE_WORKING_DIR="$TREE_PATH/$MISC_SUB/$PACKAGE_SIMPLENAME"
-  UPDATER_SCRIPT_NAME="$UPDATER_BASE_NAME.sh"
+  UPDATER_SCRIPT_NAME="$PACKAGE_SIMPLENAME.sh"
   UPDATER_SCRIPT="$PACKAGE_WORKING_DIR/$UPDATER_SCRIPT_NAME"
   PACKAGE_ACTION="$PACKAGE_WORKING_DIR/$HOOK_SUB/$ACTION_HOOK"
-  PACKAGE_BOOT="$PACKAGE_WORKING_DIR/$HOOK_SUB/$BOOT_HOOK"
 }
 
 us_remove() {
@@ -212,13 +207,6 @@ cat << EOF
 EOF
 }
 
-us_is_updater_package(){
-  if [ "$PACKAGE_OWNER" = "$PACKAGE_UPDATER_OWNER" -a "$PACKAGE_NAME" = "$PACKAGE_UPDATER_NAME" ]; then
-    return 0 # true when checked in a "if"
-  fi
-  return 1 # false when checked in a "if"
-}
-
 us_config() {
 
   # Add action hooks in the Script dir
@@ -226,10 +214,11 @@ us_config() {
     us_generate_wrapper "$PACKAGE_ACTION/$HOOK" > "$SCRIPT_DIR/${PACKAGE_SIMPLENAME}_$HOOK" ||die
   done
 
-  if us_is_updater_package; then
+  # Special case for the updater
+  if [ "$PACKAGE_SIMPLENAME" = "$UPDATER_NAME" ]; then
     # This is done with a wrapper for other packages, however the Updater is
     # an exception since the "Shortcut" MUST work also withou any installation)
-    us_show_shortcut > "$SCRIPT_DIR/${PACKAGE_NAME}_update.sh" ||die
+    us_show_shortcut > "$SCRIPT_DIR/${PACKAGE_SIMPLENAME}_update.sh" ||die
   fi
 
   # TODO : other configs ? boot hooks ?
@@ -242,20 +231,21 @@ us_finish(){
 us_package_do() {
   ACTION="$1"
   shift
-
-  # This will fallback to the UPDATER package (i.e. the one containing this
-  # file) when no other parameter are given
+  # 'infoset' must be done before any action.
+  # In case the requested action is `infoset`, it must be done single time
   us_set_package_info $@
-
-  "us_$ACTION"
+  if [ "$ACTION" != "infoset" ]; then
+    "us_$ACTION"
+  fi
 }
 
 # PACKAGE LIST
+#
+us_do_for_updater() {
+  us_package_do "$1" github.com/pocomane lua_static_battery . git.url "$UPDATER_NAME"
+}
 us_do_for_other() {
   
-  # us_package_do "$1" /media/data/devel/luaproc-extended luaproc-extended . copy
-  # us_package_do "$1" /media/data/devel/luachild luachild . copy
-
   us_package_do "$1" www.lua.org/ftp lua-5.4.1.tar.gz . url.tar.gz.sub 'lua'
   us_package_do "$1" github.com/keplerproject luafilesystem . git.url
   us_package_do "$1" github.com/diegonehab luasocket . git.url
@@ -278,13 +268,13 @@ us_do_for_other() {
   fi
 }
 
-us_do_for_updater() {
-  us_package_do "$1"
-}
-
 us_do_for_all() {
   us_do_for_updater $1
   us_do_for_other $1
+}
+
+us_set_updater_info(){
+  us_do_for_updater infoset
 }
 
 us_info(){
@@ -300,7 +290,7 @@ us_info(){
 }
 
 us_is_updater_installed() {
-  us_set_package_info
+  us_set_updater_info
   if [[ -x "$UPDATER_SCRIPT" ]]; then
     return 0 # true when checked in a "if"
   fi
@@ -308,7 +298,7 @@ us_is_updater_installed() {
 }
 
 us_run_installed_updater() {
-  us_set_package_info
+  us_set_updater_info
 
   # For release
   chmod ugo+x "$UPDATER_SCRIPT"
@@ -319,7 +309,7 @@ us_run_installed_updater() {
 }
 
 us_update() {
-  us_set_package_info
+  us_set_updater_info
   mkdir -p "$SCRIPT_DIR" ||die "can not create the script directory '$SCRIPT_DIR'"
 
   if us_is_updater_installed; then
@@ -352,7 +342,7 @@ us_main_dispatch() {
          us_do_for_all config           # it will call us_config
          ;;
       "show_shortcut")
-         us_set_package_info
+         us_set_updater_info
          us_show_shortcut
          ;;
       *)
