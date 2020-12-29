@@ -11,6 +11,9 @@ for both x86 (natively) and arm with hard float (through cross-compile).
 Windows binaries are built through cross-compile from linux. The mac binaries
 are built with a default LLVM toolchain, without musl.
 
+In [Release page](https://github.com/pocomane/lua_static_battery/releases/latest)
+you can fine the output binaries for all the supporterd platforms.
+
 Library list and documentation
 ==============================
 
