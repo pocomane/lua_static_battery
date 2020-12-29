@@ -238,7 +238,7 @@ us_do_for_updater() {
 }
 us_do_for_other() {
   
-  us_package_do "$1" www.lua.org/ftp lua-5.4.1.tar.gz . url.tar.gz.sub 'lua'
+  us_package_do "$1" www.lua.org/ftp lua-5.4.2.tar.gz . url.tar.gz.sub 'lua'
   us_package_do "$1" github.com/keplerproject luafilesystem . git.url
   us_package_do "$1" github.com/diegonehab luasocket . git.url
   us_package_do "$1" github.com/pocomane luachild . git.url
