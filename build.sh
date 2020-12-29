@@ -9,7 +9,7 @@ die(){
 
 SCRDIR="$(readlink -f $(dirname "$0"))"
 cd "$SCRDIR"/..
-BUILDDIR="$(readlink -f .)"
+BUILDDIR="$(realpath .)"
 pwd
 
 # this should be the same of CC=" musl-gcc "
