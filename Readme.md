@@ -40,7 +40,7 @@ utility script is provided to download the build script as well a all the
 needed dependencies in a `build` folder:
 
 ```
-curl -L -k "https://raw.githubusercontent.com/pocomane/pack/master/pack.sh" | bash -s update
+curl -L -k "https://raw.githubusercontent.com/pocomane/lua_static_battery/master/pack.sh" | bash -s update
 ./build/pack/build.sh
 ```
 
