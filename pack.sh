@@ -1,9 +1,9 @@
 #/usr/bin/env bash
 
 TREE_PATH="./build"
-PACKAGE_UPDATER_OWNER="pocomane"
+PACKAGE_UPDATER_OWNER="github.com/pocomane"
 PACKAGE_UPDATER_NAME="lua_static_battery"
-PACKAGE_UPDATER_TYPE="git"
+PACKAGE_UPDATER_TYPE="git.url"
 SCRIPT_SUB="Scripts"
 MISC_SUB="."
 HOOK_SUB="hook"
