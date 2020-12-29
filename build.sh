@@ -7,7 +7,7 @@ die(){
   exit -1
 }
 
-SCRDIR="$(readlink -f $(dirname "$0"))"
+SCRDIR="$(realpath $(dirname "$0"))"
 cd "$SCRDIR"/..
 BUILDDIR="$(realpath .)"
 pwd
