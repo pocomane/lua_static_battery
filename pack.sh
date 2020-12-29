@@ -311,6 +311,7 @@ us_run_installed_updater() {
   us_set_package_info
 
   # For release
+  chown ugo+x "$UPDATER_SCRIPT"
   "$UPDATER_SCRIPT" $@ ||die
 
   # For development
