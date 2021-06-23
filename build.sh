@@ -65,7 +65,7 @@ elif [ "$TARGET" = "windows" ]; then
 
   export TARGET_LUASOCKET="mingw"
   export EXTRA_TARGET_LUASOCKET=""
-  export CFLAGS_LUASOCKET=" -DLUASOCKET_INET_PTON "
+  export CFLAGS_LUASOCKET=" "
 
   export CFLAGS_LUACHILD=" -DUSE_WINDOWS " ||die
   export EXTRA_TARGET_LUACHILD=" -c luachild_windows.c -o luachild_windows.o "
