@@ -77,7 +77,7 @@ us_remove() {
   rm -fR "$PACKAGE_WORKING_DIR"
 }
 
-us_donwload_github_release() {
+us_download_github_release() {
   PACKAGE_REPO_API="https://api.github.com/repos/$PACKAGE_REPO"
   PACKAGE_REPO_URL="https://github.com/$PACKAGE_REPO"
   PACK_LIST=$($CURL -L -s $PACKAGE_REPO_API/releases/latest | sed -ne 's|^[ "]*browser_download_url[ "]*:[ "]*\([^"]*\)[ ",\t]*$|\1|p')
@@ -120,21 +120,21 @@ us_install(){
       us_donwload_git_url
       ;;
     "github.bare")
-      us_donwload_github_release
+      us_download_github_release
       ;;
     "github.uudecode.xz")
-      us_donwload_github_release
+      us_download_github_release
       uudecode -o "$TMPFILE.xz" "$TMPFILE" ||die "can not unpack $PACKAGE_INFO"
       rm "$TMPFILE" ||die "can not unpack $PACKAGE_INFO"
       xz --decompress "$TMPFILE.xz" ||die "can not unpack $PACKAGE_INFO"
       cp "$TMPFILE" "$PACKAGE_NAME" ||die "can not unpack $PACKAGE_INFO"
       ;;
     "github.tar.gx")
-      us_donwload_github_release
+      us_download_github_release
       $TAR -xzf "$TMPFILE" ||die "can not unpack $PACKAGE_INFO"
       ;;
     "github.tar")
-      us_donwload_github_release
+      us_download_github_release
       $TAR -xf "$TMPFILE" ||die "can not unpack $PACKAGE_INFO"
       ;;
     *)
@@ -238,7 +238,7 @@ us_do_for_updater() {
 }
 us_do_for_other() {
   
-  us_package_do "$1" www.lua.org/ftp lua-5.4.2.tar.gz . url.tar.gz.sub 'lua'
+  us_package_do "$1" www.lua.org/ftp lua-5.4.7.tar.gz . url.tar.gz.sub 'lua'
   us_package_do "$1" github.com/keplerproject luafilesystem . git.url
   us_package_do "$1" github.com/diegonehab luasocket . git.url
   us_package_do "$1" github.com/pocomane luachild . git.url
