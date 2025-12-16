@@ -8,9 +8,9 @@ die(){
 }
 
 SCRDIR="$(realpath $(dirname "$0"))"
-cd "$SCRDIR"/..
-BUILDDIR="$(realpath .)"
-pwd
+BUILDDIR="$SCRDIR/build"
+mkdir -p "$BUILDDIR"
+cd "$BUILDDIR"
 
 # this should be the same of CC=" musl-gcc "
 # export CC=" cc -specs /usr/share/dpkg/no-pie-compile.specs -specs /usr/share/dpkg/no-pie-link.specs -specs /usr/lib/x86_64-linux-musl/musl-gcc.specs "
@@ -131,11 +131,8 @@ export QUOTED_OPTION="-DLUA_MAIN_FILE=\"lua/src/lua.c\""
 $CC $CFLAGS $CFLAGS_PRELOAD $QUOTED_OPTION -I . -I "lua/src" -I luafilesystem/src -I luasocket/src -I luachild -I luaproc-extended/src -c "$SCRDIR"/preload.c -o ./preload.o ||die
 $CC $CFLAGS $CFLAGS_PRELOAD $QUOTED_OPTION -I . -I "lua/src" -I luafilesystem/src -I luasocket/src -I luachild -I luaproc-extended/src -c "$SCRDIR"/lua_patch.c -o ./lua_patch.o ||die
 
-$CC -o lua.exe ./lua_patch.o ./preload.o lua/src/*.o luafilesystem/src/*.o luasocket/src/*.o luachild/*.o luaproc-extended/src/*.o $LDFLAGS $LDFLAGS_PRELOAD ||die
-$STRIP lua.exe ||die
-
-$CC -o lua_merge.exe ./preload.o lua/src/*.o luafilesystem/src/*.o luasocket/src/*.o luachild/*.o luaproc-extended/src/*.o glua/*.o $LDFLAGS $LDFLAGS_PRELOAD ||die
-$STRIP lua_merge.exe ||die
+$CC -o lua_static_battery.exe ./preload.o lua/src/*.o luafilesystem/src/*.o luasocket/src/*.o luachild/*.o luaproc-extended/src/*.o glua/*.o $LDFLAGS $LDFLAGS_PRELOAD ||die
+$STRIP lua_static_battery.exe ||die
 
 git_repo_ver(){
   A="$(cd "$1" && git config --get remote.origin.url)"
@@ -173,9 +170,9 @@ cp ./wip ./Readme.md ||die
 
 mkdir -p deploy
 if [ "$TARGET" = "windows" ]; then
-  zip -r deploy/lua_static_battery_windows.zip Readme.md lua.exe lua_merge.exe ||die
+  zip -r deploy/lua_static_battery_windows.zip Readme.md lua_static_battery.exe ||die
 else
-  tar -zcf "deploy/lua_static_battery_$TARGET.tar.gz" Readme.md lua.exe lua_merge.exe ||die
+  tar -zcf "deploy/lua_static_battery_$TARGET.tar.gz" Readme.md lua_static_battery.exe ||die
 fi
 ls -lha deploy
 
