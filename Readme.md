@@ -27,7 +27,7 @@ Here a link to the documentation of the included software:
 - [Glua](https://github.com/pocomane/glua), it is a lua+script embedding utility
 
 Usage
-======
+=====
 
 The build script can be run with
 
@@ -35,17 +35,25 @@ The build script can be run with
 ./build.sh
 ```
 
-It expects that all the softwares are in specific subfolder. However, an
-utility script is provided to download the build script as well a all the
+It expects alpine linux and that all the sources the are in specific subfolder
+`build`.  However, some workaraound are in place for other environment.
+
+Get the sources
+===============
+
+An utility script is provided to download the build script as well a all the
 needed dependencies in a `build` folder:
+
+```
+./pack.sh update
+```
+
+You can use it also to download `lua_static_battery` too:
 
 ```
 curl -L -k "https://raw.githubusercontent.com/pocomane/lua_static_battery/master/pack.sh" | bash -s update
 ./build/pack/build.sh
 ```
-
-To select the target architecture you can set the `TARGET` environment variable
-to `linux`, `arm_linux`, `windows` or `mac`.
 
 To change the download/build directory, you can set the `UPDATER_TARGET`
 environment variable.
@@ -53,12 +61,17 @@ environment variable.
 Build environment
 =================
 
-The following software is supposed to be installed in the host system:
+If you are on another linux distribution, you can use `runalp.sh` script, that
+will download an Alpine linux image and run it in a container. The syntax is:
 
-- A posix shell
-- GNU coreutils
-- Tar and Gzip
-- Sed
-- Curl
-- Git
+```
+./runalp.sh ./pack.sh update
+./runalp.sh ./build.sh
+```
+
+Build options
+=============
+
+To select the target architecture you can set the `TARGET` environment variable
+to `linux`, `arm_linux`, `windows` or `mac`.
 

@@ -8,9 +8,9 @@ die(){
 }
 
 SCRDIR="$(realpath $(dirname "$0"))"
-cd "$SCRDIR"/..
-BUILDDIR="$(realpath .)"
-pwd
+BUILDDIR="$SCRDIR/build"
+mkdir -p "$BUILDDIR"
+cd "$BUILDDIR"
 
 # this should be the same of CC=" musl-gcc "
 # export CC=" cc -specs /usr/share/dpkg/no-pie-compile.specs -specs /usr/share/dpkg/no-pie-link.specs -specs /usr/lib/x86_64-linux-musl/musl-gcc.specs "
