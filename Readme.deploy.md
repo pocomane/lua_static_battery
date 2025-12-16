@@ -6,17 +6,14 @@ This is a static version of lua in the sense that it should run without
 requiring any external library. It lets you to embed a script in the
 executable and provides also some useful libraries.
 
-See [lua_static_battery](http://github.com/pocomane/lua_static_battery) for more
-details.
-
-All the software is released under MIT-style license.
+All the softwares is released under MIT-style license.
 
 Library list and documentation
 ==============================
 
 Here a link to the documentation of the included software:
 
-- [Lua 5.4.2](https://www.lua.org/manual/5.4), the standalone interpreter is in the generated `lua.exe`
+- [Lua 5.4.7](https://www.lua.org/manual/5.4), the standalone interpreter is in the generated `lua.exe`
 - [Lua File System](https://keplerproject.github.io/luafilesystem/manual.html#reference), it is enabled with `local lfs = require "lfs"`
 - [Lua Socket](http://w3.impa.br/~diego/software/luasocket/reference.html), it is enabled with `local socket = require "socket"`
 - [Lua Child](https://github.com/pocomane/luachild), it is enabled with `local child = require "luachild"`
