@@ -12,6 +12,7 @@ jobs:
           branch: v3.21
           packages: >
             curl
+            git
       - name: Build all
         run: chmod ugo+x pack.sh build.sh; ./pack.sh update; ./build.sh
         shell: alpine.sh {0}
