@@ -1,0 +1,25 @@
+name: Make_All
+on: push
+jobs:
+  Make_All:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      
+      - name: Setup latest Alpine Linux
+        uses: jirutka/setup-alpine@v1
+        with:
+          branch: v3.21
+          packages: >
+            curl
+      - name: Build all
+        run: chmod ugo+x pack.sh build.sh; ./pack.sh update; ./build.sh
+        shell: alpine.sh {0}
+        
+      - run: echo "TAG_NAME=v0.1-rc" >> "$GITHUB_OUTPUT"
+        id: version_check
+      - uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{steps.version_check.outputs.TAG_NAME}}
+          files: |
+             build/deploy/*
