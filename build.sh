@@ -15,7 +15,7 @@ setup_all(){
   # export CC=" cc -specs /usr/share/dpkg/no-pie-compile.specs -specs /usr/share/dpkg/no-pie-link.specs -specs /usr/lib/x86_64-linux-musl/musl-gcc.specs "
 
   export CC=" $BUILDDIR/gcc-musl-cross-amd64-linux/x86_64-linux-musl-native/bin/gcc "
-  export CFLAGS=" -std=gnu99 -Wno-implicit-function-declaration -O2 -I $BUILDDIR/lua/src "
+  export CFLAGS=" -std=gnu99 -O2 -I $BUILDDIR/lua/src "
   export LDFLAGS=" -static -ldl "
   export STRIP=" $BUILDDIR/gcc-musl-cross-amd64-linux/x86_64-linux-musl-native/bin/strip "
 
@@ -190,6 +190,7 @@ make_all(){
   VER_LSOCKET="$(git_repo_ver luasocket)"
   VER_LCHILD="$(git_repo_ver luachild)"
   VER_LPROC="$(git_repo_ver luaproc-extended)"
+  VER_LTUIMODE="$(git_repo_ver lua_tui_mode)"
   VER_GLUA="$(git_repo_ver glua)"
 
   cp "$SCRDIR"/Readme.deploy.md ./wip ||die
@@ -204,6 +205,7 @@ make_all(){
   echo "luasocket version: $VER_LSOCKET" >> ./wip ||die
   echo "luachild version: $VER_LCHILD" >> ./wip ||die
   echo "luaproc version: $VER_LPROC" >> ./wip ||die
+  echo "lua_tui_mode version: $VER_LTUIMODE" >> ./wip ||die
   echo "glua version: $VER_GLUA" >> ./wip ||die
   echo >> ./wip ||die
   cp ./wip ./Readme.md ||die
