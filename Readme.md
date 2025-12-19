@@ -29,6 +29,10 @@ The build script can be run with
 It expects alpine linux and that all the sources the are in specific subfolder
 `build`.  However, some workaraound are in place for other environment.
 
+It will produce in the `build/deploy` subfolder a set of packages for different
+platform containing the application `lua_static_batter.exe` with some
+documentation.
+
 Get the sources
 ===============
 

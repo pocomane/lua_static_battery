@@ -238,26 +238,13 @@ us_do_for_updater() {
 }
 us_do_for_other() {
   
+  us_package_do "$1" github.com/pocomane gcc-musl-cross-amd64-linux . git.url
   us_package_do "$1" www.lua.org/ftp lua-5.4.7.tar.gz . url.tar.gz.sub 'lua'
   us_package_do "$1" github.com/keplerproject luafilesystem . git.url
   us_package_do "$1" github.com/diegonehab luasocket . git.url
   us_package_do "$1" github.com/pocomane luachild . git.url
   us_package_do "$1" github.com/pocomane luaproc-extended . git.url
   us_package_do "$1" github.com/pocomane glua . git.url
-  
-  if   [ "$TARGET" = "" ]; then
-    us_package_do "$1" musl.cc i686-linux-musl-native.tgz . url.tar.gz.sub 'muslcc'
-  elif [ "$TARGET" = "linux" ]; then
-    us_package_do "$1" musl.cc i686-linux-musl-native.tgz . url.tar.gz.sub 'muslcc'
-  elif [ "$TARGET" = "windows" ]; then
-    us_package_do "$1" musl.cc i686-w64-mingw32-cross.tgz . url.tar.gz.sub 'muslcc'
-  elif [ "$TARGET" = "mac" ]; then
-    echo "using default compiler for mac"
-  elif [ "$TARGET" = "arm_linux" ]; then
-    us_package_do "$1" musl.cc arm-linux-musleabihf-cross.tgz . url.tar.gz.sub 'muslcc'
-  else
-    die 'Invalid TARGET '$TARGET''
-  fi
 }
 
 us_do_for_all() {

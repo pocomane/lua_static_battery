@@ -27,8 +27,7 @@ static int loader_lua_socket(lua_State *L){
   return 1;
 }
 
-int preload_all(lua_State* L){
-  luaL_openlibs(L);  /* open standard libraries */
+int preload_extra(lua_State* L){
 
   luaL_getsubtable(L, LUA_REGISTRYINDEX, LUA_PRELOAD_TABLE);
 
