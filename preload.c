@@ -15,6 +15,7 @@ int luaopen_socket_unix(lua_State *L);
 int luaopen_socket_core(lua_State *L);
 int luaopen_luachild(lua_State *L);
 int luaopen_luaproc(lua_State *L);
+int luaopen_lua_tui_mode(lua_State *L);
 
 static int loader_lua_socket(lua_State *L){
   int args = lua_gettop(L);
@@ -41,6 +42,7 @@ int preload_extra(lua_State* L){
   lua_pushcfunction(L, loader_lua_socket); lua_setfield(L, -2, "socket");
   lua_pushcfunction(L, luaopen_luachild); lua_setfield(L, -2, "luachild");
   lua_pushcfunction(L, luaopen_luaproc); lua_setfield(L, -2, "luaproc");
+  lua_pushcfunction(L, luaopen_lua_tui_mode); lua_setfield(L, -2, "lua_tui_mode");
 
   lua_pop(L, 1);
   return 0;

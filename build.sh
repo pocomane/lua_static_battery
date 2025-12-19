@@ -50,6 +50,8 @@ setup_all(){
     export TARGET_LUA="posix"
     export CFLAGS_LUA=" $CFLAGS_LUA "
 
+    export CFLAGS_LUATUIMODE=" -DPOSIX "
+
   elif [ "$TARGET" = "windows" ]; then
     echo "building for windows"
 
@@ -71,6 +73,8 @@ setup_all(){
     export CFLAGS_PRELOAD=" -DPRELOAD_FOR_WINDOWS "
     export LDFLAGS_PRELOAD=" -lm -lwsock32 -lws2_32 -lpthread "
 
+    export CFLAGS_LUATUIMODE=" -DWINDOWS "
+
 #  elif [ "$TARGET" = "mac" ]; then
 #    echo "building for mac"
 #
@@ -89,6 +93,8 @@ setup_all(){
     export TARGET_LUA="linux"
     export CFLAGS_LUA=" $CFLAGS_LUA "
     export LDFLAGS_LUA=""
+
+    export CFLAGS_LUATUIMODE=" -DWINDOWS "
 
   else
     echo "unknown target '$TARGET'"
@@ -114,6 +120,8 @@ clean_partial(){
   cd "$BUILDDIR"/luaproc-extended
   make clean
   cd "$BUILDDIR"/glua
+  rm *.o
+  cd "$BUILDDIR"/lua_tui_mode ||die
   rm *.o
   cd "$BUILDDIR"
   rm lua_static_battery.exe
@@ -154,13 +162,16 @@ make_all(){
   export QUOTED_OPTION="-DENABLE_STANDARD_LUA_CLI=\"../lua/src/lua.c\""
   $CC $CFLAGS $CFLAGS_GLUA $QUOTED_OPTION -DBINJECT_ARRAY_SIZE=32768 -DUSE_WHEREAMI -DPRELOAD_EXTRA=preload_extra -I . -I "../lua-$LUAVER/src/" -c *.c ||die
 
+  cd "$BUILDDIR"/lua_tui_mode ||die
+  $CC $CFLAGS $CFLAGS_LUATUIMODE -I . -I "../lua-$LUAVER/src/" -c *.c ||die
+
   cd "$BUILDDIR" ||die
 
   export QUOTED_OPTION="-DLUA_MAIN_FILE=\"lua/src/lua.c\""
   $CC $CFLAGS $CFLAGS_PRELOAD $QUOTED_OPTION -I . -I "lua/src" -I luafilesystem/src -I luasocket/src -I luachild -I luaproc-extended/src -c "$SCRDIR"/preload.c -o ./preload.o ||die
   $CC $CFLAGS $CFLAGS_PRELOAD $QUOTED_OPTION -I . -I "lua/src" -I luafilesystem/src -I luasocket/src -I luachild -I luaproc-extended/src -c "$SCRDIR"/lua_patch.c -o ./lua_patch.o ||die
 
-  $CC -o lua_static_battery.exe ./preload.o lua/src/*.o luafilesystem/src/*.o luasocket/src/*.o luachild/*.o luaproc-extended/src/*.o glua/*.o $LDFLAGS $LDFLAGS_PRELOAD ||die
+  $CC -o lua_static_battery.exe ./preload.o lua/src/*.o luafilesystem/src/*.o luasocket/src/*.o luachild/*.o luaproc-extended/src/*.o glua/*.o lua_tui_mode/*.o $LDFLAGS $LDFLAGS_PRELOAD ||die
   $STRIP lua_static_battery.exe ||die
 
   git_repo_ver(){

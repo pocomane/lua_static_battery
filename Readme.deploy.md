@@ -20,7 +20,8 @@ found the library documentation at the following links:
 - [Lua Socket](http://w3.impa.br/~diego/software/luasocket/reference.html), it is enabled with `local socket = require "socket"`
 - [Lua Child](https://github.com/pocomane/luachild), it is enabled with `local child = require "luachild"`
 - [LuaProc](https://github.com/pocomane/luaproc-extended), it is enabled with `local proc = require "luaproc"`
-- [Glua](https://github.com/pocomane/glua), it is an script embedig system, you can access it with `local glua_pack = require "glua_pack"`
+- [Lua TUI mode](https://github.com/pocomane/lua_tui_mode), it is enabled with `local tui = require "lua_tui_mode"`
+- [Glua](https://github.com/pocomane/glua), it is enabled with `local glua_pack = require "glua_pack"`
 
 Embed a script
 ===============

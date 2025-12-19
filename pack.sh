@@ -244,6 +244,7 @@ us_do_for_other() {
   us_package_do "$1" github.com/diegonehab luasocket . git.url
   us_package_do "$1" github.com/pocomane luachild . git.url
   us_package_do "$1" github.com/pocomane luaproc-extended . git.url
+  us_package_do "$1" github.com/pocomane lua_tui_mode . git.url
   us_package_do "$1" github.com/pocomane glua . git.url
 }
 
