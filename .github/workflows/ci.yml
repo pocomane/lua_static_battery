@@ -11,6 +11,9 @@ jobs:
         with:
           branch: v3.21
           packages: >
+            zip
+            binutils
+            make
             curl
             git
       - name: Build all
