@@ -3,6 +3,8 @@ on: push
 jobs:
   Make_All:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write # needed to push a new tag
     steps:
       - uses: actions/checkout@v2
       
@@ -20,10 +22,24 @@ jobs:
         run: chmod ugo+x pack.sh build.sh; ./pack.sh update; ./build.sh
         shell: alpine.sh {0}
         
-      - run: echo "TAG_NAME=v0.1-rc" >> "$GITHUB_OUTPUT"
-        id: version_check
+      - name: Generate Tag
+        id: generate_tag
+        run: |
+          TAG_PREFIX="v0.1"
+          TAG_SUFFIX="$(git rev-parse HEAD)"
+          NEW_TAG="${TAG_PREFIX}-${TAG_SUFFIX}"
+          echo "Generated tag: $NEW_TAG"
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git tag "$NEW_TAG"
+          git push origin "$NEW_TAG"
+          # export the variable for next step
+          echo "NEW_TAG=$NEW_TAG" >> $GITHUB_OUTPUT
+
+      - run: echo "pushing artifact"
+        id: push_artifact
       - uses: softprops/action-gh-release@v1
         with:
-          tag_name: ${{steps.version_check.outputs.TAG_NAME}}
+          tag_name: ${{steps.generate_tag.outputs.NEW_TAG}}
           files: |
              build/deploy/*
