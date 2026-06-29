@@ -48,7 +48,7 @@ setup_all(){
     export STRIP="$BUILDDIR/gcc-musl-cross-amd64-linux/x86_64-linux-musl-native/bin/strip"
 
     export TARGET_LUA="posix"
-    export CFLAGS_LUA=" $CFLAGS_LUA "
+    export CFLAGS_LUA=" $CFLAGS_LUA -DLUA_USE_POSIX "
 
     export CFLAGS_LUATUIMODE=" -DPOSIX "
 
@@ -60,7 +60,7 @@ setup_all(){
     export STRIP="$BUILDDIR/gcc-musl-cross-amd64-linux/x86_64-w64-mingw32-cross/bin/x86_64-w64-mingw32-strip"
 
     export TARGET_LUA="mingw"
-    export CFLAGS_LUA=" $CFLAGS_LUA "
+    export CFLAGS_LUA=" $CFLAGS_LUA -DLUA_USE_WINDOWS "
     export LDFLAGS_LUA=""
 
     export TARGET_LUASOCKET="mingw"
@@ -227,13 +227,13 @@ main(){
   if [ "$TARGET" != "all" ]; then
     make_all
   else
-    export TARGET="linux"
-    make_all
     export TARGET="windows"
     make_all
     # export TARGET="mac"
     # make_all
     export TARGET="arm_linux"
+    make_all
+    export TARGET="linux"
     make_all
   fi
 }
