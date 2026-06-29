@@ -92,9 +92,9 @@ setup_all(){
 
     export TARGET_LUA="linux"
     export CFLAGS_LUA=" $CFLAGS_LUA "
-    export LDFLAGS_LUA=""
+    export CFLAGS_LUA=" $CFLAGS_LUA -DLUA_USE_POSIX "
 
-    export CFLAGS_LUATUIMODE=" -DWINDOWS "
+    export CFLAGS_LUATUIMODE=" -DPOSIX "
 
   else
     echo "unknown target '$TARGET'"
