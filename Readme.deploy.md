@@ -27,35 +27,35 @@ Embed a script
 ===============
 
 As explained in its documentation, the `glua_pack` function can be used to
-create a new standalone executable taht embeds a lua script. It will be run
-instead of the standard lua interpreter, an obviously it can use all the
+create a new standalone executable that embeds a lua script. It will be run
+instead of the standard lua interpreter, and obviously it can use all the
 emebeded libraries.
 
 As example:
 
 ```
+echo "print'hello world!" > hello_world.lua
+./lua_static_battery.exe -e 'require"glua_pack"("hello_world.lua", "glued.exe")'
+chmod ugo+x glued.exe
+./glued.exe # -> hello world!
+```
+
+You can simplify this process creating an "Embending utility":
+
+```
 echo 'require"glua_pack"(argv[1], "glued.exe")' > embed.lua
 ./lua_static_battery.exe -e 'require"glua_pack"("embed.lua", "lsb.exe")'
 chmod ugo+x lsb.exe
-```
 
-Will generate the application `lsb.exe` that run
-`require"glua_pack"(argv[1], "glued.exe")` when launched. So you can use itself
-to embed other script more easly:
-
-```
+# Keep lsb.exe in your utilities, drag lua script on it or:
 echo "print'hello world!" > hello_world.lua
 ./lsb.exe hello_world.lua
 chmod ugo+x glued.exe
+./glued.exe # -> hello world!
 ```
-
-(or drag `hello_world.lua` on `lsb.exe`). It will create `glued.exe`
-that contain the script. Launch it and the message `hello world!` will be
-displayed in the console.
 
 Please, be aware that `lua_static_library.exe` is (deliberately) an extremly
 simple tool. It does not try to reduce size, or to embed other lua modules. For
 such advanced operation you can use something like [lua
 squish](http://matthewwild.co.uk/projects/squish/home) and then use glua.exe on
 the input file.
-
